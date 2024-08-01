@@ -180,8 +180,25 @@ int main()
                 root = readFile(fileName, list);
                 NLR(root);
                 break;
-            // case 2:
-            //     break;
+            case 2:
+                //Insert new city into KD tree
+                {
+                    Cities newCity;
+                    cin.ignore();
+                    cout << "Name of the city: ";
+                    getline(cin, newCity.name);
+                    cout << "Latitude: ";
+                    cin >> newCity.lat;
+                    cout << "Longtitude: ";
+                    cin >> newCity.lng;
+                    cout << "Country: ";
+                    cin >> newCity.country;
+                    cout << "Population: ";
+                    cin >> newCity.country;
+                    Insert(root, newCity, 1);
+                }
+                
+                break;
             case 3:
                 //Read the input CSV file path and insert items from new file into existed tree
                 string file;

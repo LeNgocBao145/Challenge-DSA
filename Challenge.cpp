@@ -3,10 +3,11 @@
 #include <sstream>
 #include <vector>
 #include <math.h>
-
+#include "json.hpp"
 #define _USE_MATH_DEFINES // for pi constant
 
 using namespace std;
+using json = nlohmann::json;
 
 //K Dimension
 const int k = 2;
@@ -138,10 +139,16 @@ int showMenu()
     cout << "5. Query all cities within a specified rectangular region defined by its geographical boundaries" << endl;
     cout << endl;
 
+    cout << "6. Save KD-Tree to file (Serialize)" << endl;
+    cout << endl;
+
+    cout << "7. Load KD-Tree from file (Deserialize)" << endl;
+    cout << endl;
+
     cout << "0. Exit Program" << endl;
     cout << endl;
 
-    cout << "Type your choice (1 -> 5): ";
+    cout << "Type your choice (1 -> 7): ";
     cin >> choice;
 
     return choice;
@@ -275,6 +282,78 @@ void outputToCSV(string filename, vector <Cities> cities) {
     fileOut.close();
 }
 
+
+// Part 4: Bảo Phạm.
+// a. json format.
+/*Advantage: 
+    +, Human-Readable: Easy to read and debug.
+    +, Language-Independent: Widely supported across various programming languages.
+    +, Easier to Extend: Adding new fields or nodes can be managed without changing 
+    the existing structure much.*/
+/*Disadvantage:
+    +, Larger Size: Takes more space than binary formats due to text representation.
+    +, Slower Parsing: Text processing is generally slower than binary.*/
+
+
+// Setting Deserialization.
+json serializeNode(Node* root) {
+    if (!root) return nullptr;
+
+    json j;
+    j["name"] = root->data.name;
+    j["lat"] = root->data.lat;
+    j["lng"] = root->data.lng;
+    j["country"] = root->data.country;
+    j["population"] = root->data.population;
+
+    j["left"] = serializeNode(root->left);
+    j["right"] = serializeNode(root->right);
+
+    return j;
+}
+
+void serializeTree(Node* root, string filename) {
+    json j = serializeNode(root);
+    ofstream out(filename);
+    if (out.is_open()) {
+        out << j.dump(4);
+        out.close();
+        cout << "Tree serialized successfully to" << filename << "\n";
+    } else {
+        cout << "Unable to open file for serialization!.\n";
+    }
+}
+
+// Setting Deserialization.
+Node* deserializeNode(json &j) {
+    if (j.is_null()) return nullptr;
+
+    Node* node = new Node;
+    node->data.name = j["name"];
+    node->data.lat = j["lat"];
+    node->data.lng = j["lng"];
+    node->data.country = j["country"];
+    node->data.population = j["population"];
+
+    node->left = deserializeNode(j["left"]);
+    node->right = deserializeNode(j["right"]);
+
+    return node;
+}
+
+Node* deserializeTree(string filename) {
+    ifstream file(filename);
+    json j;
+    if (file.is_open()) {
+        file >> j;
+        file.close();
+        return deserializeNode(j);
+    } else {
+        cout << "Unable to open file for deserialization." << endl;
+        return nullptr;
+    }
+}
+
 int main()
 {
     vector<Cities> list;
@@ -369,6 +448,23 @@ int main()
                 outputToCSV("output.csv", res);
             }
             
+        }
+            break;
+        
+        case 6:
+        {
+            string Filename;
+            cout << "Enter filename to save KD-Tree: ";
+            cin >> Filename;
+            serializeTree(root, Filename);
+        }
+            break;
+        case 7:
+        {
+            string Filename;
+            cout << "Enter filename to load KD-Tree: ";
+            cin >> Filename;
+            root = deserializeTree(Filename);
         }
             break;
         default:

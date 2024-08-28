@@ -345,13 +345,25 @@ Node* deserializeTree(string filename) {
     ifstream file(filename);
     json j;
     if (file.is_open()) {
+        cout << "Load KD-Tree successfully.\n";
         file >> j;
         file.close();
         return deserializeNode(j);
     } else {
-        cout << "Unable to open file for deserialization." << endl;
+        cout << "Unable to open file for deserialization.\n" << endl;
         return nullptr;
     }
+}
+
+
+void printTree(Node* root, int &count) {
+    if (!root) return;
+    cout << ++count << ". City: " << root->data.name << ", Latitude: " << root->data.lat
+         << ", Longitude: " << root->data.lng << ", Country: " << root->data.country
+         << ", Population: " << root->data.population << endl;
+
+    printTree(root->left, count);
+    printTree(root->right, count);
 }
 
 int main()
@@ -461,10 +473,12 @@ int main()
             break;
         case 7:
         {
+            int count = 0;
             string Filename;
             cout << "Enter filename to load KD-Tree: ";
             cin >> Filename;
             root = deserializeTree(Filename);
+            printTree(root, count);
         }
             break;
         default:

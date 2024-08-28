@@ -262,6 +262,19 @@ void findNearestNeighbors(Node* pRoot, Cities& res, double& dist, double x, doub
 
 }
 
+void outputToCSV(string filename, vector <Cities> cities) {
+    ofstream fileOut;
+    fileOut.open(filename);
+
+    fileOut << "city, lat, lng, country, population" << endl;
+
+    for (Cities item : cities) {
+        fileOut << item.name << "," << item.lat << "," << item.lng << "," << item.country << "," << item.population << endl;
+    }
+
+    fileOut.close();
+}
+
 int main()
 {
     vector<Cities> list;
@@ -333,6 +346,7 @@ int main()
                 vector <Cities> output = {res};
                 printCities(output);
                 cout << "Distance: " << distance << "m" << endl;
+                outputToCSV("output.csv", output);
             }
         }
             break;
@@ -352,13 +366,14 @@ int main()
             else {
                 rangeSearch(root, res, x1, y1, x2, y2);
                 printCities(res);
+                outputToCSV("output.csv", res);
             }
             
         }
             break;
-            default:
-                cout << "Invalid Choice!" << endl;
-                break;
+        default:
+            cout << "Invalid Choice!" << endl;
+            break;
         }
     }
 

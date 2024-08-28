@@ -2,6 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <math.h>
+
+#define _USE_MATH_DEFINES // for pi constant
 
 using namespace std;
 
@@ -204,6 +207,61 @@ void printCities(vector <Cities> res) {
     }
 }
 
+
+double calculateDistance(double x1, double y1, double x2, double y2) {
+    // based on Harvesine formula
+    double pi = 2 * acos(0.0);
+    y1 = y1 * pi / 180.0;
+    y2 = y2 * pi / 180.0;
+    double delta_x = (x2 - x1) * pi / 180.0;
+    double delta_y = (y2 - y1);
+    double a = sin((delta_y) / 2) * sin((delta_y) / 2) + cos(y1) * cos(y2) * sin((delta_x) / 2) * sin((delta_x) / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double r = 6371e3;
+
+    double dist = r * c;
+    return dist;
+}
+
+void findNearestNeighbors(Node* pRoot, Cities& res, double& dist, double x, double y) {
+    // Using BST find key
+    if (pRoot == NULL)
+    {
+        return;
+    }
+    int height = Height(pRoot);
+    int align = height % k;
+    double node_dist = calculateDistance(x, y, pRoot->data.lng, pRoot->data.lat);
+    if (node_dist < dist) {
+        dist = node_dist;
+        res = pRoot->data;
+    }
+
+    if (align == 1)
+    {
+        if (y < pRoot->data.lat)
+        {
+            findNearestNeighbors(pRoot->left, res, dist, x, y);
+        }
+        else
+        {
+            findNearestNeighbors(pRoot->right, res, dist, x, y);
+        }
+    }
+    else if (align == 0)
+    {
+        if (x < pRoot->data.lng)
+        {
+            findNearestNeighbors(pRoot->left, res, dist, x, y);
+        }
+        else
+        {
+            findNearestNeighbors(pRoot->right, res, dist, x, y);
+        }
+    }
+
+}
+
 int main()
 {
     vector<Cities> list;
@@ -259,8 +317,25 @@ int main()
                 
             break;
 
-        // case 4:
-            // break;
+        case 4:
+        {
+            Cities res;
+            double distance = INT_MAX;
+            double x, y;
+            cout << "Input the coordinates (x y): ";
+            cin >> x >> y;
+
+            if (!root) {
+                cout << "Current KD-Tree is empty" << endl;
+            }
+            else {
+                findNearestNeighbors(root, res, distance, x, y);
+                vector <Cities> output = {res};
+                printCities(output);
+                cout << "Distance: " << distance << "m" << endl;
+            }
+        }
+            break;
         case 5:
         // search cities in range based on TL - BR
         {

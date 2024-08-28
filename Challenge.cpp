@@ -63,6 +63,8 @@ void Insert(Node* &root, Cities newCity, int depth)
     }
 }
 
+
+
 Node* readFile(string fileName, vector<Cities>& list)
 {
     ifstream file(fileName);
@@ -155,6 +157,53 @@ void NLR(Node* pRoot)
     NLR(pRoot->right);
 }
 
+int Height(Node* node) {
+    if (!node) return 0;
+
+    int left_height = Height(node->left);
+    int right_height = Height(node->right);
+
+    if (left_height > right_height)
+        return 1 + left_height;
+    else
+        return 1 + right_height;
+}
+
+
+void rangeSearch(Node* pRoot, vector <Cities> &res, double x1, double y1, double x2, double y2) {
+    // x1, y1 is the top left corner
+    // x2, y2 is the bottom right corner
+    if (pRoot == NULL)
+    {
+        return;
+    }
+
+    // verify
+
+    double x = pRoot->data.lng;
+    double y = pRoot->data.lat;
+
+    if (x1 <= x && x <= x2 && y2 <= y && y <= y1) {
+        res.push_back(pRoot->data);
+    }
+
+    rangeSearch(pRoot->left, res, x1, y1, x2, y2);
+    rangeSearch(pRoot->right, res, x1, y1, x2, y2);
+}
+
+void printCities(vector <Cities> res) {
+    for (Cities item : res) {
+        cout << "City name: " << item.name << endl;
+        cout << "Longitude: " << item.lng << endl;
+        cout << "Latitude: " << item.lat << endl;
+        cout << "Country: " << item.country << endl;
+        cout << "Population: " << item.population << endl;
+        // margin
+        cout << endl;
+
+    }
+}
+
 int main()
 {
     vector<Cities> list;
@@ -169,50 +218,72 @@ int main()
     {
         choice = showMenu();
 
-        switch(choice)
+        switch (choice)
         {
-            case 0:
-                system("cls");
-                cout << "Good bye! See you again!" << endl;
-                return 0;
-            case 1:
-                //Read already existed file and add items into KD tree
-                root = readFile(fileName, list);
-                NLR(root);
-                break;
-            case 2:
-                //Insert new city into KD tree
-                {
-                    Cities newCity;
-                    cin.ignore();
-                    cout << "Name of the city: ";
-                    getline(cin, newCity.name);
-                    cout << "Latitude: ";
-                    cin >> newCity.lat;
-                    cout << "Longtitude: ";
-                    cin >> newCity.lng;
-                    cout << "Country: ";
-                    cin >> newCity.country;
-                    cout << "Population: ";
-                    cin >> newCity.country;
-                    Insert(root, newCity, 1);
-                }
+        case 0:
+            system("cls");
+            cout << "Good bye! See you again!" << endl;
+            return 0;
+        case 1:
+            //Read already existed file and add items into KD tree
+            root = readFile(fileName, list);
+            //NLR(root);
+            break;
+        case 2:
+            //Insert new city into KD tree
+        {
+            Cities newCity;
+            cin.ignore();
+            cout << "Name of the city: ";
+            getline(cin, newCity.name);
+            cout << "Latitude: ";
+            cin >> newCity.lat;
+            cout << "Longtitude: ";
+            cin >> newCity.lng;
+            cout << "Country: ";
+            cin >> newCity.country;
+            cout << "Population: ";
+            cin >> newCity.country;
+            Insert(root, newCity, 1);
+        }
+
+        break;
+        case 3:
+            //Read the input CSV file path and insert items from new file into existed tree
+        {
+            string file;
+            cin.ignore();
+            getline(cin, file);
+            readFile(file, list);  
+        }
                 
+            break;
+
+        // case 4:
+            // break;
+        case 5:
+        // search cities in range based on TL - BR
+        {
+            double x1, y1, x2, y2;
+            cout << "Input the coordinates of top left corner (x1 y1): ";
+            cin >> x1 >> y1;
+            cout << "Input the coordinates of top bottom right (x2 y2): ";
+            cin >> x2 >> y2;
+
+            vector <Cities> res = {};
+            if (!root) {
+                cout << "Current KD-Tree is empty" << endl;
+            }
+            else {
+                rangeSearch(root, res, x1, y1, x2, y2);
+                printCities(res);
+            }
+            
+        }
+            break;
+            default:
+                cout << "Invalid Choice!" << endl;
                 break;
-            case 3:
-                //Read the input CSV file path and insert items from new file into existed tree
-                string file;
-                cin.ignore();
-                getline(cin, file);
-                readFile(file, list);
-                break;
-            // case 4:
-            //     break;
-            // case 5:
-            //     break;
-            // default:
-            //     cout << "Invalid Choice!" << endl;
-            //     break;
         }
     }
 

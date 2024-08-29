@@ -313,12 +313,13 @@ json serializeNode(Node* root) {
 }
 
 void serializeTree(Node* root, string filename) {
+    filename += ".json";
     json j = serializeNode(root);
     ofstream out(filename);
     if (out.is_open()) {
         out << j.dump(4);
         out.close();
-        cout << "Tree serialized successfully to" << filename << "\n";
+        cout << "Tree serialized successfully to " << filename << "\n";
     } else {
         cout << "Unable to open file for serialization!.\n";
     }

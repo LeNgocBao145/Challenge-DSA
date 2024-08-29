@@ -408,6 +408,32 @@ void printTree(Node* root, int &count) {
     printTree(root->right, count);
 }
 
+void outputCSVHandler(vector <Cities> cities) {
+    char choice;
+    cout << "Save to csv file? (Y/N): ";
+    bool validChoice = false;
+    do {
+        cin >> choice;
+        if (choice == 'y' ||
+            choice == 'Y' ||
+            choice == 'N' ||
+            choice == 'n') {
+            validChoice = true;
+        }
+    } while (!validChoice);
+    
+    if (choice == 'N' ||
+        choice == 'n') return;
+    string filename;
+    cout << "CSV file name: ";
+    cin >> filename;
+
+    filename += ".csv";
+    outputToCSV(filename, cities);
+
+    cout << "Saved to " << filename << endl;
+}
+
 int main()
 {
     vector<Cities> list;
@@ -479,7 +505,8 @@ int main()
                 vector <Cities> output = {res};
                 printCities(output);
                 cout << "Distance: " << distance << "m" << endl;
-                outputToCSV("output.csv", output);
+                
+                outputCSVHandler(output);
             }
         }
             break;
@@ -499,7 +526,7 @@ int main()
             else {
                 rangeSearch(root, res, x1, y1, x2, y2);
                 printCities(res);
-                outputToCSV("output.csv", res);
+                outputCSVHandler(res);
             }
             
         }

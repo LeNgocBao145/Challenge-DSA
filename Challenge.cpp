@@ -18,20 +18,24 @@ struct Cities
     double lat, lng;
     string country;
     int population;
+    
 };
 
 struct Node{
     Cities data;
     Node* left;
     Node* right;
+    int depth = 0;
 };
 
-Node* createNode(Cities data)
+
+Node* createNode(Cities data, int depth)
 {
     Node* newNode = new Node;
     newNode->data = data;
     newNode->left = NULL;
     newNode->right = NULL;
+    newNode->depth = depth;
 
     return newNode;
 }
@@ -40,7 +44,7 @@ void Insert(Node* &root, Cities newCity, int depth)
 {
     if(root == NULL)
     {
-        root = createNode(newCity);
+        root = createNode(newCity, depth);
         return;
     }
 
@@ -230,14 +234,49 @@ double calculateDistance(double x1, double y1, double x2, double y2) {
     return dist;
 }
 
+bool isSameCities(Cities a, Cities b) {
+    if (a.name == b.name &&
+        a.lat == b.lat &&
+        a.lng == b.lng &&
+        a.population == b.population &&
+        a.country == b.country) return true;
+    return false;
+}
+
+int findDepth(Node* root, Cities x)
+{
+    // Base case
+    if (root == NULL)
+        return -1;
+
+    // Initialize distance as -1
+    int dist = -1;
+
+    // Check if x is current node=
+    if (isSameCities(root->data, x)
+
+        // Otherwise, check if x is
+        // present in the left subtree
+        || (dist = findDepth(root->left, x)) >= 0
+
+        // Otherwise, check if x is
+        // present in the right subtree
+        || (dist = findDepth(root->right, x)) >= 0)
+
+        // Return depth of the node
+        return dist + 1;
+
+    return dist;
+}
+
 void findNearestNeighbors(Node* pRoot, Cities& res, double& dist, double x, double y) {
     // Using BST find key
     if (pRoot == NULL)
     {
         return;
     }
-    int height = Height(pRoot);
-    int align = height % k;
+    int depth = pRoot->depth;
+    int align = depth % k;
     double node_dist = calculateDistance(x, y, pRoot->data.lng, pRoot->data.lat);
     if (node_dist < dist) {
         dist = node_dist;
@@ -308,6 +347,7 @@ json serializeNode(Node* root) {
 
     j["left"] = serializeNode(root->left);
     j["right"] = serializeNode(root->right);
+    j["depth"] = root->depth;
 
     return j;
 }
@@ -338,6 +378,7 @@ Node* deserializeNode(json &j) {
 
     node->left = deserializeNode(j["left"]);
     node->right = deserializeNode(j["right"]);
+    node->depth = j["depth"];
 
     return node;
 }
